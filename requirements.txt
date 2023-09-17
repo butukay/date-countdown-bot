@@ -1,0 +1,9 @@
+schedule
+pydantic
+
+aiogram==3.0.0
+redis
+
+motor
+
+nest_asyncio
