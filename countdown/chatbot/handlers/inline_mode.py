@@ -86,7 +86,7 @@ async def chosen_inline_result_handler(chosen_result: types.ChosenInlineResult) 
 
     new_countdown = Countdown(
         inline_message_id=chosen_result.inline_message_id,
-        text=text_1.strip()+text_2.strip(),
+        text=(text_1.strip() + "" +text_2.strip()).strip(),
         date=date
     )
 
