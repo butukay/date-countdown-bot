@@ -6,9 +6,13 @@ from aiogram.dispatcher.router import Router
 from . import inline_mode
 from . import pm_mode
 
+from . import edit_countdown
+
 router = Router()
 router.include_router(inline_mode.router)
 router.include_router(pm_mode.router)
+
+router.include_router(edit_countdown.router)
 
 unknown_command_router = Router()
 

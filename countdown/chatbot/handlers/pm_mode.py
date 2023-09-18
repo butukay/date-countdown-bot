@@ -49,24 +49,3 @@ Made with ❤️ by @butukay
 # @router.edited_message(lambda m: m.text.startswith("Until"))
 # async def generated_message_handler(message: types.Message) -> None:
 #     await message.answer("✅ It works! Now this message will be automatically updated")
-
-
-@router.callback_query(lambda c: c.data.startswith("edit:"))
-async def edit_callback_handler(callback_query: types.CallbackQuery) -> None:
-    assert callback_query.from_user is not None
-    assert callback_query.data is not None
-
-    inline_message_id = callback_query.data.replace("edit:", "")
-
-    user = await users.get_user(callback_query.from_user.id)
-
-    await callback_query.answer("⚠️ Work in progress", show_alert=True)
-
-    # TODO: edit countdown message
-
-    # try:
-    #     countdown = user.get_countdown(inline_message_id)
-    # except Exception as e:
-    #     await callback_query.answer("This countdown doesn't exist")
-    #     return
-

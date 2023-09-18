@@ -7,6 +7,8 @@ from countdown.data import users
 
 import datetime
 
+from countdown.data.countdown import Countdown
+
 router = Router()
 
 @router.inline_query()
@@ -82,25 +84,17 @@ async def chosen_inline_result_handler(chosen_result: types.ChosenInlineResult) 
     text_1, date_str, text_2 = query_str.split("%%")
     date = datetime.datetime.strptime(date_str, "%Y-%m-%d")
 
-    user.add_countdown(
+    new_countdown = Countdown(
         inline_message_id=chosen_result.inline_message_id,
         text=text_1.strip()+text_2.strip(),
         date=date
     )
 
+    user.add_countdown(new_countdown)
     await users.save_user(user)
 
     await bot.edit_message_text(
         inline_message_id=chosen_result.inline_message_id,
-        text=f"""
-Until <b>{date.strftime("%d.%m.%Y")}</b> left: <b>{(date - datetime.datetime.now()).days + 1}</b> days
-
-""" + f"{text_1} {text_2}",
-        reply_markup=types.InlineKeyboardMarkup(
-            inline_keyboard=[
-                [ types.InlineKeyboardButton(text="Edit", callback_data=f"edit:{chosen_result.inline_message_id}") ],
-            ]
-        )
+        text=new_countdown.get_message_text(),
+        reply_markup=new_countdown.get_message_markup()
     )
-
-

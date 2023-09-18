@@ -40,8 +40,12 @@ def start():
     if "--no-schedule" not in sys.argv:
         RUN_UPDATES_TIMES = json.loads(os.environ.get("RUN_UPDATES_TIMES", '["00:00"]'))
         for time in RUN_UPDATES_TIMES:
-            schedule.every().day.at(time).do(main.update_messages)
+            schedule.every().day.at(time).do(main.update_messages, show_time=False)
             logging.info(f"Scheduled UPDATES for {time} every day")
+
+        RUN_UPDATES_INTERVAL = int(os.environ.get("RUN_UPDATES_INTERVAL", "60"))
+        schedule.every(RUN_UPDATES_INTERVAL).minutes.do(main.update_messages, show_time=True)
+        logging.info(f"Scheduled UPDATES every {RUN_UPDATES_INTERVAL} minutes")
 
     try:
         worker_thread = threading.Thread(target=worker_wrapper, name="WORKER", daemon=True)
