@@ -44,7 +44,7 @@ def start():
             logging.info(f"Scheduled UPDATES for {time} every day")
 
         RUN_UPDATES_INTERVAL = int(os.environ.get("RUN_UPDATES_INTERVAL", "60"))
-        schedule.every(RUN_UPDATES_INTERVAL).minutes.do(main.update_messages, show_time=True)
+        schedule.every(RUN_UPDATES_INTERVAL).minutes.do(main.update_messages, only_with_time=True)
         logging.info(f"Scheduled UPDATES every {RUN_UPDATES_INTERVAL} minutes")
 
     try:
