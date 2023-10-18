@@ -47,6 +47,25 @@ async def back_to_countdown(callback_query: types.CallbackQuery):
     )
 
 
+@router.callback_query(lambda c: c.data.startswith("delete:"))
+async def delete_countdown(callback_query: types.CallbackQuery):
+    assert callback_query.data is not None
+    assert callback_query.message is not None
+
+    inline_message_id = callback_query.data.replace("back:", "")
+
+    try:
+        user, countdown = await users.get_countdown(inline_message_id)
+    except ValueError:
+        await bot.answer_callback_query(callback_query.id, "⚠️ Database error")
+        return
+
+    await callback_query.message.delete()
+
+    user.countdowns.remove(countdown)
+    await users.save_user(user)
+
+
 @router.callback_query(lambda c: c.data.startswith("s:"))
 async def change_settings_callback_handler(callback_query: types.CallbackQuery):
     assert callback_query.data is not None

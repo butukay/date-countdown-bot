@@ -40,6 +40,7 @@ class Countdown(pydantic.BaseModel):
 
         return InlineKeyboardMarkup(inline_keyboard=[
             [ InlineKeyboardButton(text=f"Show time: {onoff(self.settings.show_time)}", callback_data=f"s:{self.inline_message_id}:show_time") ],
+            [ InlineKeyboardButton(text=f"🗑️ Delete", callback_data=f"delete:{self.inline_message_id}") ],
             [ InlineKeyboardButton(text="< Back", callback_data=f"back:{self.inline_message_id}") ],
         ])
 
