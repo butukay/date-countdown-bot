@@ -15,6 +15,7 @@ async def update_messages_a(only_with_time: bool = False):
         if user.countdowns:
             log.info(f"Updating {len(user.countdowns)} countdowns for {user.user_id}")
 
+        to_remove = []
         for countdown in user.countdowns:
             if only_with_time:
                 if not countdown.settings.show_time:
@@ -36,11 +37,12 @@ async def update_messages_a(only_with_time: bool = False):
                     log.info(f" - Message {countdown.inline_message_id} is not modified")
                 elif "MESSAGE_ID_INVALID" in str(e):
                     log.info(f" - Message {countdown.inline_message_id} is invalid, removing...")
-                    user.countdowns.remove(countdown)
+                    to_remove.append(countdown)
                 else:
                     log.exception(f"Error while updating message {countdown.inline_message_id}: {e}")
 
-                continue
+        for countdown in to_remove:
+            user.countdowns.remove(countdown)
 
         await users.save_user(user)
 
