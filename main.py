@@ -1,11 +1,8 @@
-import countdown.chatbot, countdown.worker
-
 import logging, datetime, signal, gzip, time, sys, os
 import threading
 
 import nest_asyncio
 nest_asyncio.apply()
-
 
 def archive_prev_log():
     if not os.path.exists("logs/latest.log"):
@@ -30,9 +27,14 @@ def setup_logging():
 
 
 def setup_files():
-    required_dirs = ["logs"]
+    required_dirs = [
+        "logs",
+        "data"
+    ]
 
-    required_files = {}
+    required_files = {
+        "data/executed_mailings.json": "{}",
+    }
 
     for d in required_dirs:
         if not os.path.isdir(d):
@@ -54,6 +56,7 @@ if __name__ == "__main__":
     setup_logging()
 
     logging.info(f"Запускаюсь с аргументами: {sys.argv}")
+    import countdown.chatbot, countdown.worker
 
     threads = []
 
