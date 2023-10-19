@@ -1,11 +1,15 @@
 import threading, schedule, logging, json, time, sys, os
 
-from . import main
+from . import main, mailing
 
 def worker():
     if '--run-updates-now' in sys.argv:
         logging.info("Running message updates now...")
         main.update_messages()
+
+    if '--run-mailing-now' in sys.argv:
+        logging.info("Running mailing now...")
+        mailing.run_mailing()
 
     while True:
         schedule.run_pending()
@@ -33,6 +37,7 @@ def worker_wrapper():
 
         time.sleep(WORKER_RESTART_TIMEOUT)
 
+
 ### called from root main.py
 def start():
     logging.info("Setting up worker...")
@@ -46,6 +51,12 @@ def start():
         RUN_UPDATES_INTERVAL = int(os.environ.get("RUN_UPDATES_INTERVAL", "60"))
         schedule.every(RUN_UPDATES_INTERVAL).minutes.do(main.update_messages, only_with_time=True)
         logging.info(f"Scheduled UPDATES every {RUN_UPDATES_INTERVAL} minutes")
+
+
+        RUN_MAILING_TIMES = json.loads(os.environ.get("RUN_MAILING_TIMES", '["16:00"]'))
+        for time in RUN_MAILING_TIMES:
+            schedule.every().day.at(time).do(mailing.run_mailing)
+            logging.info(f"Scheduled MAILING for {time} every day")
 
     try:
         worker_thread = threading.Thread(target=worker_wrapper, name="WORKER", daemon=True)

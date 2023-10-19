@@ -12,6 +12,7 @@ class User(pydantic.BaseModel):
     username: str | None = None
 
     registered: datetime.datetime = pydantic.Field(default_factory=datetime.datetime.now)
+    mailings_done: List[str] = pydantic.Field(default_factory=list)
 
     countdowns: List[Countdown] = pydantic.Field(default_factory=list)
 
