@@ -25,3 +25,6 @@ data/**
 logs/**
 
 .coverage
+
+deploy.sh
+docker-compose.yml
