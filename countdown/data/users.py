@@ -2,7 +2,7 @@ from typing import List, AsyncIterable, Iterable
 
 from countdown.data.database import get_users_collection
 
-from .countdown import Countdown
+from .countdown import DefaultCountdown, FormattedCountdown
 
 import pydantic
 import datetime
@@ -14,12 +14,12 @@ class User(pydantic.BaseModel):
     registered: datetime.datetime = pydantic.Field(default_factory=datetime.datetime.now)
     mailings_done: List[str] = pydantic.Field(default_factory=list)
 
-    countdowns: List[Countdown] = pydantic.Field(default_factory=list)
+    countdowns: List[DefaultCountdown | FormattedCountdown] = pydantic.Field(default_factory=list)
 
-    def add_countdown(self, countdown: Countdown) -> None:
+    def add_countdown(self, countdown: DefaultCountdown | FormattedCountdown) -> None:
         self.countdowns.append(countdown)
 
-    def update_countdown(self, countdown: Countdown) -> None:
+    def update_countdown(self, countdown: DefaultCountdown | FormattedCountdown) -> None:
         for i in range(len(self.countdowns)):
             if self.countdowns[i].inline_message_id == countdown.inline_message_id:
                 self.countdowns[i] = countdown
@@ -101,7 +101,7 @@ async def delete_user(user_id: int) -> None:
     await collection.delete_one({'user_id': user_id})
 
 
-async def get_countdown(inline_message_id: str) -> tuple[User, Countdown]:
+async def get_countdown(inline_message_id: str) -> tuple[User, DefaultCountdown | FormattedCountdown]:
     async for user in get_users_async_iterable():
         for countdown in user.countdowns:
             if countdown.inline_message_id == inline_message_id:
@@ -109,7 +109,8 @@ async def get_countdown(inline_message_id: str) -> tuple[User, Countdown]:
 
     raise ValueError(f"Countdown with inline_message_id {inline_message_id} not found")
 
-async def save_countdown(countdown: Countdown) -> None:
+
+async def save_countdown(countdown: DefaultCountdown | FormattedCountdown) -> None:
     user, _ = await get_countdown(countdown.inline_message_id)
     user.update_countdown(countdown)
     await save_user(user)

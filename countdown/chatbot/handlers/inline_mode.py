@@ -7,7 +7,7 @@ from countdown.data import users
 
 import datetime
 
-from countdown.data.countdown import Countdown
+from countdown.data.countdown import DefaultCountdown, FormattedCountdown
 
 router = Router()
 
@@ -15,47 +15,7 @@ router = Router()
 async def inline_query_handler(query: types.InlineQuery) -> None:
     query_str = query.query
 
-    if query_str.count("%%") == 2:
-        try:
-            text_1, date_str, text_2 = query_str.split("%%")
-            date = datetime.datetime.strptime(date_str, "%Y-%m-%d")
-        except Exception as e:
-            await query.answer(
-                results=[
-                    types.InlineQueryResultArticle(
-                        id="invalid_format",
-                        title="Error",
-                        description=f"⚠️ Invalid date format",
-                        input_message_content=types.InputTextMessageContent(
-                            message_text="❌ <b>Error:</b> Invalid date format",
-                        ),
-                    ),
-                ],
-            )
-
-            return
-
-
-        await query.answer(
-            results=[
-                types.InlineQueryResultArticle(
-                    id="date",
-                    title="Countdown",
-                    description=f"✅ Valid date format",
-                    input_message_content=types.InputTextMessageContent(
-                        message_text=f"⏳ Wait a second",
-
-                    ),
-                    reply_markup=types.InlineKeyboardMarkup(
-                        inline_keyboard=[
-                            [ types.InlineKeyboardButton(text="Loading...", switch_inline_query=f"{text_1}%%{date_str}%%{text_2}") ],
-                        ],
-                    )
-                ),
-            ],
-        )
-
-    else:
+    if not query_str:
         await query.answer(
             results=[
                 types.InlineQueryResultArticle(
@@ -67,6 +27,64 @@ async def inline_query_handler(query: types.InlineQuery) -> None:
                 ),
             ],
         )
+
+    try:
+        if query_str.count("%%") == 2:
+            text_1, date_str, text_2 = query_str.split("%%")
+
+            try:
+                datetime.datetime.strptime(date_str, "%Y-%m-%d %H:%M")
+            except ValueError:
+                datetime.datetime.strptime(date_str, "%Y-%m-%d")
+
+        elif query_str.count("[[") == query_str.count("]]") >= 1:
+            values = query_str.replace("[[", "$*").replace("]]", "*$").split("$")
+
+            for val in values:
+                if val.startswith("*") and val.endswith("*"):
+                    try:
+                        datetime.datetime.strptime(val.strip("*"), "%Y-%m-%d %H:%M")
+                    except ValueError:
+                        datetime.datetime.strptime(val.strip("*"), "%Y-%m-%d")
+                else:
+                    pass
+        else:
+            raise ValueError
+
+    except ValueError:
+        await query.answer(
+            results=[
+                types.InlineQueryResultArticle(
+                    id="invalid_format",
+                    title="Error",
+                    description=f"⚠️ Invalid message format",
+                    input_message_content=types.InputTextMessageContent(
+                        message_text="❌ <b>Error:</b> Invalid message format. See available formats in /info",
+                    ),
+                ),
+            ],
+        )
+
+        return
+
+    await query.answer(
+        results=[
+            types.InlineQueryResultArticle(
+                id="date",
+                title="Countdown",
+                description=f"✅ Valid date format",
+                input_message_content=types.InputTextMessageContent(
+                    message_text=f"⏳ Wait a second",
+
+                ),
+                reply_markup=types.InlineKeyboardMarkup(
+                    inline_keyboard=[
+                        [ types.InlineKeyboardButton(text="Loading...", switch_inline_query=query_str) ],
+                    ],
+                )
+            ),
+        ],
+    )
 
 
 @router.chosen_inline_result()
@@ -81,14 +99,30 @@ async def chosen_inline_result_handler(chosen_result: types.ChosenInlineResult) 
 
     query_str = chosen_result.query
 
-    text_1, date_str, text_2 = query_str.split("%%")
-    date = datetime.datetime.strptime(date_str, "%Y-%m-%d")
+    if "%%" in query_str:
+        text_1, date_str, text_2 = query_str.split("%%")
 
-    new_countdown = Countdown(
-        inline_message_id=chosen_result.inline_message_id,
-        text=(text_1.strip() + "" +text_2.strip()).strip(),
-        date=date
-    )
+        try:
+            date = datetime.datetime.strptime(date_str, "%Y-%m-%d %H:%M")
+        except ValueError:
+            date = datetime.datetime.strptime(date_str, "%Y-%m-%d")
+
+        new_countdown = DefaultCountdown(
+            inline_message_id=chosen_result.inline_message_id,
+            text=(text_1.strip() + "" +text_2.strip()).strip(),
+            date=date
+        )
+
+    elif "[[" in query_str and "]]" in query_str:
+        values = [ val for val in query_str.replace("[[", "$*").replace("]]", "*$").split("$") ]
+
+        new_countdown = FormattedCountdown(
+            inline_message_id=chosen_result.inline_message_id,
+            values=values
+        )
+
+    else:
+        raise NotImplementedError
 
     user.add_countdown(new_countdown)
     await users.save_user(user)
