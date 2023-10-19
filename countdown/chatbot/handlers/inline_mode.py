@@ -15,18 +15,18 @@ router = Router()
 async def inline_query_handler(query: types.InlineQuery) -> None:
     query_str = query.query
 
-    if not query_str:
-        await query.answer(
-            results=[
-                types.InlineQueryResultArticle(
-                    id="empty",
-                    title="Empty",
-                    input_message_content=types.InputTextMessageContent(
-                        message_text="Empty query",
-                    ),
-                ),
-            ],
-        )
+    # if not query_str:
+    #     await query.answer(
+    #         results=[
+    #             types.InlineQueryResultArticle(
+    #                 id="empty",
+    #                 title="Empty",
+    #                 input_message_content=types.InputTextMessageContent(
+    #                     message_text="Empty query",
+    #                 ),
+    #             ),
+    #         ],
+    #     )
 
     try:
         if query_str.count("%%") == 2:
@@ -109,7 +109,7 @@ async def chosen_inline_result_handler(chosen_result: types.ChosenInlineResult) 
 
         new_countdown = DefaultCountdown(
             inline_message_id=chosen_result.inline_message_id,
-            text=(text_1.strip() + "" +text_2.strip()).strip(),
+            text=(text_1.strip() + " " + text_2.strip()).strip(),
             date=date
         )
 
