@@ -7,6 +7,11 @@ import datetime
 
 class CountdownSettings(pydantic.BaseModel):
     show_time: bool = False
+    utc_offset: int = pydantic.Field(lt=13, gt=-13, default=0)
+
+    @property
+    def timezone(self):
+        return datetime.timezone(datetime.timedelta(hours=self.utc_offset))
 
 class Countdown(pydantic.BaseModel):
     inline_message_id: str
@@ -28,7 +33,12 @@ class Countdown(pydantic.BaseModel):
         onoff = lambda v: "✅" if v else "❌"
 
         return InlineKeyboardMarkup(inline_keyboard=[
-            [ InlineKeyboardButton(text=f"Show time: {onoff(self.settings.show_time)}", callback_data=f"s:{self.inline_message_id}:show_time") ],
+            [ InlineKeyboardButton(text=f"Show time: {onoff(self.settings.show_time)}", callback_data=f"s:{self.inline_message_id}:show_time:*") ],
+            [
+                InlineKeyboardButton(text="<", callback_data=f"s:{self.inline_message_id}:timezone:-"),
+                InlineKeyboardButton(text=str(self.settings.timezone), callback_data="null"),
+                InlineKeyboardButton(text=">", callback_data=f"s:{self.inline_message_id}:timezone:+")
+            ],
             [ InlineKeyboardButton(text="< Back", callback_data=f"back:{self.inline_message_id}") ],
         ])
 
@@ -46,7 +56,7 @@ class DefaultCountdown(Countdown):
     def get_message_text(self) -> str:
         text = ""
 
-        d = self.date - datetime.datetime.now()
+        d = self.date.replace(tzinfo=self.settings.timezone) - datetime.datetime.now(datetime.timezone.utc)
         if not self.settings.show_time:
             text += f"Until <b>{self.date.strftime('%d.%m.%Y')}</b> left: <b>{d.days + 1}</b> days"
         else:
@@ -72,7 +82,7 @@ class FormattedCountdown(Countdown):
                 except ValueError:
                     dt = datetime.datetime.strptime(val.strip("*"), "%Y-%m-%d")
 
-                d = dt - datetime.datetime.now()
+                d = dt.replace(tzinfo=self.settings.timezone) - datetime.datetime.now(datetime.timezone.utc)
 
                 if not self.settings.show_time:
                     msg += f"<b>{d.days + 1} days</b>"

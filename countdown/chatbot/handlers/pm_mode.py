@@ -36,8 +36,6 @@ To create a countdown, start typing a message in one of the folowing formats:
 @{(await bot.me()).username} some text [[2024-02-03]] some text
 @{(await bot.me()).username} some text [[2024-02-03 06:30]] some text
 
-<i>You have to use UTC time zone</i>
-
 Made with ❤️ by @butukay • <a href='{GITHUB_URL}'>GitHub</a>
 """, disable_web_page_preview=True)
 
@@ -55,8 +53,6 @@ To create a countdown, start typing a message in one of the folowing formats:
 
 @{(await bot.me()).username} some text [[2024-02-03]] some text
 @{(await bot.me()).username} some text [[2024-02-03 06:30]] some text
-
-<i>You have to use UTC time zone</i>
 
 Made with ❤️ by @butukay • <a href='{GITHUB_URL}'>GitHub</a>
 """, disable_web_page_preview=True)
