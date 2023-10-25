@@ -102,16 +102,21 @@ async def chosen_inline_result_handler(chosen_result: types.ChosenInlineResult) 
     if "%%" in query_str:
         text_1, date_str, text_2 = query_str.split("%%")
 
+        show_time = False
+
         try:
             date = datetime.datetime.strptime(date_str, "%Y-%m-%d %H:%M")
+            show_time = True
         except ValueError:
             date = datetime.datetime.strptime(date_str, "%Y-%m-%d")
 
         new_countdown = DefaultCountdown(
             inline_message_id=chosen_result.inline_message_id,
             text=(text_1.strip() + " " + text_2.strip()).strip(),
-            date=date
+            date=date,
         )
+
+        new_countdown.settings.show_time = show_time
 
     elif "[[" in query_str and "]]" in query_str:
         values = [ val for val in query_str.replace("[[", "$*").replace("]]", "*$").split("$") ]
