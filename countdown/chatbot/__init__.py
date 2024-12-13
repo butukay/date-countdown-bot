@@ -1,15 +1,16 @@
 from aiogram import Bot, Dispatcher
 
+from aiogram.client.default import DefaultBotProperties
 from aiogram.fsm.strategy import FSMStrategy
 
+from aiogram.fsm.storage.base import DefaultKeyBuilder
 from aiogram.fsm.storage.memory import MemoryStorage
-from aiogram.fsm.storage.redis import RedisStorage, DefaultKeyBuilder
+from aiogram.fsm.storage.redis import RedisStorage
 
 import threading, asyncio
 import logging, sys, os
 
 BOT_TOKEN = os.environ["BOT_TOKEN"]
-
 # ADMIN_CHAT_ID = os.environ['ADMIN_CHAT_ID']
 
 if '--no-state-db' in sys.argv:
@@ -28,7 +29,7 @@ else:
 
     storage = RedisStorage.from_url(redis_url, key_builder=DefaultKeyBuilder(with_bot_id=True))
 
-bot = Bot(token=BOT_TOKEN, parse_mode="HTML")
+bot = Bot(token=BOT_TOKEN, default=DefaultBotProperties(parse_mode="HTML"))
 dp = Dispatcher(storage=storage, fsm_strategy=FSMStrategy.CHAT)
 
 bot_event_loop = asyncio.new_event_loop()
@@ -44,14 +45,14 @@ def chatbot():
     # if "--no-start-msg" not in sys.argv:
     #     from countdown.chatbot.logic.admin_logs import send_bot_started
     #     send_bot_started(sys.argv)
-    #
-    # if "--no-my-commands" not in sys.argv or "--delete-my-commands" not in sys.argv:
-    #     from countdown.chatbot.logic.my_commands import send_my_commands
-    #     send_my_commands()
-    #
-    # if "--delete-my-commands" in sys.argv:
-    #     from countdown.chatbot.logic.my_commands import delete_my_commands
-    #     delete_my_commands()
+
+    if "--no-my-commands" not in sys.argv or "--delete-my-commands" not in sys.argv:
+        from countdown.chatbot.logic.my_commands import send_my_commands
+        send_my_commands()
+
+    if "--delete-my-commands" in sys.argv:
+        from countdown.chatbot.logic.my_commands import delete_my_commands
+        delete_my_commands()
 
     task = bot_event_loop.create_task( dp.start_polling(bot, handle_signals=False) )
     background_tasks.add(task)
