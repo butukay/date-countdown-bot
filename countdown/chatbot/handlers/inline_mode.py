@@ -8,11 +8,16 @@ from countdown.data import users
 import datetime
 
 from countdown.data.countdown import DefaultCountdown, FormattedCountdown
+from countdown.locale import Locale, __
 
 router = Router()
 
 @router.inline_query()
 async def inline_query_handler(query: types.InlineQuery) -> None:
+    assert query.from_user is not None
+
+    _ = lambda locale_str: __(Locale(query.from_user.language_code), locale_str)
+
     query_str = query.query
 
     # if not query_str:
@@ -56,10 +61,10 @@ async def inline_query_handler(query: types.InlineQuery) -> None:
             results=[
                 types.InlineQueryResultArticle(
                     id="invalid_format",
-                    title="Error",
-                    description=f"⚠️ Invalid message format",
+                    title=_("countdown.create.invalid_title"),
+                    description=_("countdown.create.invalid_desc"),
                     input_message_content=types.InputTextMessageContent(
-                        message_text="❌ <b>Error:</b> Invalid message format. See available formats in /info",
+                        message_text=_("countdown.create.invalid_message"),
                     ),
                 ),
             ],
@@ -70,16 +75,16 @@ async def inline_query_handler(query: types.InlineQuery) -> None:
     await query.answer(
         results=[
             types.InlineQueryResultArticle(
-                id="date",
-                title="Countdown",
-                description=f"✅ Valid date format",
+                id="new_coundown",
+                title=_("countdown.create.valid_title"),
+                description=_("countdown.create.valid_desc"),
                 input_message_content=types.InputTextMessageContent(
-                    message_text=f"⏳ Wait a second",
+                    message_text=_("countdown.create.valid_wait"),
 
                 ),
                 reply_markup=types.InlineKeyboardMarkup(
                     inline_keyboard=[
-                        [ types.InlineKeyboardButton(text="Loading...", switch_inline_query=query_str) ],
+                        [ types.InlineKeyboardButton(text=_("countdown.create.valid_loading"), switch_inline_query=query_str) ],
                     ],
                 )
             ),
@@ -128,6 +133,8 @@ async def chosen_inline_result_handler(chosen_result: types.ChosenInlineResult) 
 
     else:
         raise NotImplementedError
+
+    new_countdown.settings.locale = Locale(chosen_result.from_user.language_code)
 
     user.add_countdown(new_countdown)
     await users.save_user(user)

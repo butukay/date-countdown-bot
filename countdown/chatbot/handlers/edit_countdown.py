@@ -5,6 +5,8 @@ from aiogram.dispatcher.router import Router
 from countdown.chatbot import bot
 from countdown.data import users
 
+from countdown.locale import get_next_locale, get_prev_locale
+
 router = Router()
 
 @router.callback_query(lambda c: c.data.startswith("edit:"))
@@ -74,6 +76,12 @@ async def change_settings_callback_handler(callback_query: types.CallbackQuery):
                         countdown.settings.utc_offset = 12
                 case _:
                     raise NotImplementedError
+        case "locale":
+            match action:
+                case "+":
+                    countdown.settings.locale = get_next_locale(countdown.settings.locale)
+                case "-":
+                    countdown.settings.locale = get_prev_locale(countdown.settings.locale)
         case _:
             raise NotImplementedError
 

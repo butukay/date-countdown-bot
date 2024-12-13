@@ -1,0 +1,45 @@
+command.start="""
+👋 <b>Hello! I'm Countdown Bot!</b>
+
+I can create auto updated messages in your chats, so you can easily track how much time is left until some event
+
+To create a countdown, start typing a message in one of the folowing formats:
+@{bot_username} %%2025-02-03%% TEXT
+@{bot_username} %%2025-02-03 06:30%% TEXT
+
+@{bot_username} TEXT [[2025-02-03]] TEXT
+@{bot_username} TEXT [[2025-02-03 06:30]] TEXT
+
+Made with ❤️ by @butukay • <a href='{github_url}'>GitHub</a>
+"""
+
+command.info="""
+⏰ <b>Date Countdown Bot</b>
+
+<b>Version:</b> {version} ✅
+
+To create a countdown, start typing a message in one of the folowing formats:
+@{bot_username} %%2025-02-03%% TEXT
+@{bot_username} %%2025-02-03 06:30%% TEXT
+
+@{bot_username} TEXT [[2025-02-03]] TEXT
+@{bot_username} TEXT [[2025-02-03 06:30]] TEXT
+
+Made with ❤️ by @butukay • <a href='{github_url}'>GitHub</a>
+"""
+
+countdown.create.valid_title=New Countdown
+countdown.create.valid_desc=✅ Valid date format
+countdown.create.valid_wait=⏳ Wait a second
+countdown.create.valid_loading=Loading...
+
+countdown.create.invalid_title=Error
+countdown.create.invalid_desc=⚠️ Invalid message format
+countdown.create.invalid_message=❌ <b>Error:</b> Invalid message format. See available formats in /info
+
+countdown.settings_button=Edit
+
+countdown.settings_title=Settings
+countdown.settings.show_time=Show time
+countdown.settings.locale=Locale
+countdown.settings.back=< Back
