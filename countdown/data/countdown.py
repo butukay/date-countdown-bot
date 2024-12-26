@@ -139,20 +139,26 @@ class FormattedCountdown(Countdown):
                             else:
                                 d_str = f"{d.days} дней"
 
-                            if (d.seconds // 3600) % 10 == 1 and (d.seconds // 3600) % 100 != 11:
+                            if (d.seconds // 3600) % 100 in [11, 12, 13, 14, 15] or (d.seconds // 3600) % 10 in [0, 5, 6, 7, 8, 9]:
+                                h_str = f"{d.seconds // 3600} часов"
+                            elif (d.seconds // 3600) % 10 == 1:
                                 h_str = f"{d.seconds // 3600} час"
                             else:
-                                h_str = f"{d.seconds // 3600} часов"
+                                h_str = f"{d.seconds // 3600} часа"
 
                             if ((d.seconds // 60) % 60) % 10 == 1 and ((d.seconds // 60) % 60) % 100 != 11:
                                 m_str = f"{(d.seconds // 60) % 60} минута"
+                            elif ((d.seconds // 60) % 60) % 10 in [2, 3, 4]:
+                                m_str = f"{(d.seconds // 60) % 60} минуты"
                             else:
                                 m_str = f"{(d.seconds // 60) % 60} минут"
 
                             msg += f"<b>{' '.join([d_str, h_str, m_str])}</b>"
 
                         else:
-                            if (d.days + 1) % 10 == 1 and (d.days + 1) % 100 != 11:
+                            if (d.days + 1) in [2, 3, 4]:
+                                msg += f"<b>{d.days + 1} дня</b>"
+                            elif (d.days + 1) % 10 == 1 and (d.days + 1) % 100 != 11:
                                 msg += f"<b>{d.days + 1} день</b>"
                             else:
                                 msg += f"<b>{d.days + 1} дней</b>"
