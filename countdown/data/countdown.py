@@ -134,24 +134,28 @@ class FormattedCountdown(Countdown):
 
                     case Locale.RUSSIAN:
                         if self.settings.show_time and dt_show_time:
-                            if (d.days + 1) % 10 == 1 and (d.days + 1) % 100 != 11:
-                                d_str = f"{d.days} день"
-                            else:
-                                d_str = f"{d.days} дней"
+                            minutes = ((d.seconds // 60) % 60)
+                            hours = d.seconds // 3600
+                            days = d.days
 
-                            if (d.seconds // 3600) % 100 in [11, 12, 13, 14, 15] or (d.seconds // 3600) % 10 in [0, 5, 6, 7, 8, 9]:
+                            if days % 10 == 1 and days + 1 % 100 != 11:
+                                d_str = f"{days} день"
+                            else:
+                                d_str = f"{days} дней"
+
+                            if hours % 100 in [11, 12, 13, 14, 15, 16, 17, 18, 19] or hours % 10 in [0, 5, 6, 7, 8, 9]:
                                 h_str = f"{d.seconds // 3600} часов"
-                            elif (d.seconds // 3600) % 10 == 1:
+                            elif hours % 10 == 1:
                                 h_str = f"{d.seconds // 3600} час"
                             else:
                                 h_str = f"{d.seconds // 3600} часа"
 
-                            if ((d.seconds // 60) % 60) % 10 == 1 and ((d.seconds // 60) % 60) % 100 != 11:
-                                m_str = f"{(d.seconds // 60) % 60} минута"
-                            elif ((d.seconds // 60) % 60) % 10 in [2, 3, 4]:
-                                m_str = f"{(d.seconds // 60) % 60} минуты"
+                            if minutes % 100 in [11, 12, 13, 14, 15, 16, 17, 18, 19] or minutes % 10 in [0, 5, 6, 7, 8, 9]:
+                                m_str = f"{minutes} минут"
+                            elif minutes % 10 == 1:
+                                m_str = f"{minutes} минутa"
                             else:
-                                m_str = f"{(d.seconds // 60) % 60} минут"
+                                m_str = f"{minutes} минуты"
 
                             msg += f"<b>{' '.join([d_str, h_str, m_str])}</b>"
 
