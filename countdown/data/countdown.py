@@ -116,8 +116,10 @@ class FormattedCountdown(Countdown):
 
         for val in self.values:
             if val.startswith("*") and val.endswith("*"):
+                dt_show_time = False
                 try:
                     dt = datetime.datetime.strptime(val.strip("*"), "%Y-%m-%d %H:%M")
+                    dt_show_time = True
                 except ValueError:
                     dt = datetime.datetime.strptime(val.strip("*"), "%Y-%m-%d")
 
@@ -125,22 +127,17 @@ class FormattedCountdown(Countdown):
 
                 match self.settings.locale:
                     case Locale.ENGLISH:
-                        if not self.settings.show_time:
-                            msg += f"<b>{d.days + 1} days</b>"
+                        if self.settings.show_time and dt_show_time:
+                            msg += f"<b>{d.days} days {d.seconds // 3600} hours {(d.seconds // 60) % 60} minutes</b>"
                         else:
-                            msg += f"<b>{d.days} days, {d.seconds // 3600} hours, {(d.seconds // 60) % 60} minutes</b>"
+                            msg += f"<b>{d.days + 1} days</b>"
 
                     case Locale.RUSSIAN:
-                        if not self.settings.show_time:
+                        if self.settings.show_time and dt_show_time:
                             if (d.days + 1) % 10 == 1 and (d.days + 1) % 100 != 11:
-                                msg += f"<b>{d.days + 1} день</b>"
+                                d_str = f"{d.days} день"
                             else:
-                                msg += f"<b>{d.days + 1} дней</b>"
-                        else:
-                            if (d.days + 1) % 10 == 1 and (d.days + 1) % 100 != 11:
-                                d_str = f"<b>{d.days} день"
-                            else:
-                                d_str = f"<b>{d.days} дней"
+                                d_str = f"{d.days} дней"
 
                             if (d.seconds // 3600) % 10 == 1 and (d.seconds // 3600) % 100 != 11:
                                 h_str = f"{d.seconds // 3600} час"
@@ -152,7 +149,13 @@ class FormattedCountdown(Countdown):
                             else:
                                 m_str = f"{(d.seconds // 60) % 60} минут"
 
-                            msg += f"<b>{','.join([d_str, h_str, m_str])}</b>"
+                            msg += f"<b>{' '.join([d_str, h_str, m_str])}</b>"
+
+                        else:
+                            if (d.days + 1) % 10 == 1 and (d.days + 1) % 100 != 11:
+                                msg += f"<b>{d.days + 1} день</b>"
+                            else:
+                                msg += f"<b>{d.days + 1} дней</b>"
 
             else:
                 msg += val
