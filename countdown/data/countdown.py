@@ -73,33 +73,49 @@ class DefaultCountdown(Countdown):
 
         match self.settings.locale:
             case Locale.ENGLISH:
-                if not self.settings.show_time:
-                    text += f"Until <b>{self.date.strftime('%d.%m.%Y')}</b> left: <b>{d.days + 1}</b> days"
-                else:
+                if self.settings.show_time:
                     text += f"Until <b>{self.date.strftime('%d.%m.%Y %H:%M')}</b> left: <b>{d.days}</b> days, <b>{d.seconds // 3600}</b> hours, <b>{(d.seconds // 60) % 60}</b> minutes"
-            case Locale.RUSSIAN:
-                if not self.settings.show_time:
-                    if (d.days + 1) % 10 == 1 and (d.days + 1) % 100 != 11:
-                        text += f"До <b>{self.date.strftime('%d.%m.%Y')}</b> остался <b>{d.days + 1}</b> день"
-                    else:
-                        text += f"До <b>{self.date.strftime('%d.%m.%Y')}</b> осталось <b>{d.days + 1}</b> дня"
                 else:
-                    if (d.days + 1) % 10 == 1 and (d.days + 1) % 100 != 11:
-                        d_str = f"До <b>{self.date.strftime('%d.%m.%Y %H:%M')}</b> остался <b>{d.days}</b> день"
-                    else:
-                        d_str = f"До <b>{self.date.strftime('%d.%m.%Y %H:%M')}</b> осталось <b>{d.days}</b> дней"
+                    text += f"Until <b>{self.date.strftime('%d.%m.%Y')}</b> left: <b>{d.days + 1}</b> days"
 
-                    if (d.seconds // 3600) % 10 == 1 and (d.seconds // 3600) % 100 != 11:
-                        h_str = f"<b>{d.seconds // 3600}</b> час"
-                    else:
-                        h_str = f"<b>{d.seconds // 3600}</b> часов"
+            case Locale.RUSSIAN:
+                if self.settings.show_time:
+                    minutes = ((d.seconds // 60) % 60)
+                    hours = d.seconds // 3600
+                    days = d.days
 
-                    if ((d.seconds // 60) % 60) % 10 == 1 and ((d.seconds // 60) % 60) % 100 != 11:
-                        m_str = f"<b>{(d.seconds // 60) % 60}</b> минута"
+                    if days % 100 in [11, 12, 13, 14, 15, 16, 17, 18, 19] or days % 10 in [0, 5, 6, 7, 8, 9]:
+                        d_str = f"осталось <b>{days}</b> дней"
+                    elif days % 10 == 1:
+                        d_str = f"остался <b>{days}</b> день"
                     else:
-                        m_str = f"<b>{(d.seconds // 60) % 60}</b> минут"
+                        d_str = f"осталось <b>{days}</b> дня"
 
-                    text += f"{','.join([d_str, h_str, m_str])}"
+                    if hours % 100 in [11, 12, 13, 14, 15, 16, 17, 18, 19] or hours % 10 in [0, 5, 6, 7, 8, 9]:
+                        h_str = f"<b>{hours}</b> часов"
+                    elif hours % 10 == 1:
+                        h_str = f"<b>{hours}</b> час"
+                    else:
+                        h_str = f"<b>{hours}</b> часа"
+
+                    if minutes % 100 in [11, 12, 13, 14, 15, 16, 17, 18, 19] or minutes % 10 in [0, 5, 6, 7, 8, 9]:
+                        m_str = f"<b>{minutes}</b> минут"
+                    elif minutes % 10 == 1:
+                        m_str = f"<b>{minutes}</b> минутa"
+                    else:
+                        m_str = f"<b>{minutes}</b> минуты"
+
+                    text += f"До <b>{self.date.strftime('%d.%m.%Y %H:%M')}</b> {' '.join([d_str, h_str, m_str])}"
+
+                else:
+                    days = d.days + 1
+
+                    if days % 100 in [11, 12, 13, 14, 15, 16, 17, 18, 19] or days % 10 in [0, 5, 6, 7, 8, 9]:
+                        text += f"До <b>{self.date.strftime('%d.%m.%Y')}</b> осталось <b>{days}</b> дней"
+                    elif days % 10 == 1:
+                        text += f"До <b>{self.date.strftime('%d.%m.%Y')}</b> остался <b>{days}</b> день"
+                    else:
+                        text += f"До <b>{self.date.strftime('%d.%m.%Y')}</b> осталось <b>{days}</b> дня"
 
         text += "\n\n" + self.text.strip()
 
@@ -138,17 +154,19 @@ class FormattedCountdown(Countdown):
                             hours = d.seconds // 3600
                             days = d.days
 
-                            if days % 10 == 1 and days + 1 % 100 != 11:
+                            if days % 100 in [11, 12, 13, 14, 15, 16, 17, 18, 19] or days % 10 in [0, 5, 6, 7, 8, 9]:
+                                d_str = f"{days} дней"
+                            elif days % 10 == 1:
                                 d_str = f"{days} день"
                             else:
-                                d_str = f"{days} дней"
+                                d_str = f"{days} дня"
 
                             if hours % 100 in [11, 12, 13, 14, 15, 16, 17, 18, 19] or hours % 10 in [0, 5, 6, 7, 8, 9]:
-                                h_str = f"{d.seconds // 3600} часов"
+                                h_str = f"{hours} часов"
                             elif hours % 10 == 1:
-                                h_str = f"{d.seconds // 3600} час"
+                                h_str = f"{hours} час"
                             else:
-                                h_str = f"{d.seconds // 3600} часа"
+                                h_str = f"{hours} часа"
 
                             if minutes % 100 in [11, 12, 13, 14, 15, 16, 17, 18, 19] or minutes % 10 in [0, 5, 6, 7, 8, 9]:
                                 m_str = f"{minutes} минут"
@@ -160,12 +178,14 @@ class FormattedCountdown(Countdown):
                             msg += f"<b>{' '.join([d_str, h_str, m_str])}</b>"
 
                         else:
-                            if (d.days + 1) in [2, 3, 4]:
-                                msg += f"<b>{d.days + 1} дня</b>"
-                            elif (d.days + 1) % 10 == 1 and (d.days + 1) % 100 != 11:
-                                msg += f"<b>{d.days + 1} день</b>"
+                            days = d.days + 1
+
+                            if days % 100 in [11, 12, 13, 14, 15, 16, 17, 18, 19] or days % 10 in [0, 5, 6, 7, 8, 9]:
+                                msg += f"<b>{days} дней</b>"
+                            elif days % 10 == 1:
+                                msg += f"<b>{days} день</b>"
                             else:
-                                msg += f"<b>{d.days + 1} дней</b>"
+                                msg += f"<b>{days} дня</b>"
 
             else:
                 msg += val
